@@ -1,0 +1,55 @@
+#!/bin/csh -f
+
+#> Project name
+ set NAME     = run_99
+
+#> Uncomment for one run only
+ set RUNGROUP = 1
+ set SENPARAM = 48
+ set STDATE   = 2005001       # beginning date
+ set ENDDATE  = 2005001       # end date (last full day run)
+ set FIRSTDAY = 'Y'
+
+#> Uncomment to use master runscript 
+#set RUNGROUP = $1            # Which rungroup?
+#set SENPARAM = $2            # Number of sensitivity parameters
+#set STDATE   = $3            #
+#set ENDDATE  = $4            #
+#set FIRSTDAY = $5            # use restart file or initiate from icon (Y for icon)?
+
+#> Date/Time setup
+ set STTIME   = 000000        # beginning GMT time (HHMMSS)
+ set TODAY    = $STDATE       # init date counter
+ set NSTEPS   = 240000        # time duration (HHMMSS) PER DAY
+ set TSTEP    = 010000        # output time step interval (HHMMSS)
+ set YESTERDAY = $TODAY       #
+
+ while ( $TODAY <= $ENDDATE )
+	if ( $TODAY != $STDATE ) then
+		set FIRSTDAY = 'N'
+	endif
+	set echo
+	
+        #> SLURM Parameters
+	#SBATCH -n 16         # number of tasks
+        #SBATCH -N 1          # number of nodes
+	#SBATCH -J run_99_1   # job name
+	#SBATCH -t 24:00:00   # run limit
+	#SBATCH -p normal     # job queue
+	#SBATCH -o %J.out.txt # outfile
+	
+        #> Set number of threads per task
+        #setenv OMP_NUM_THREADS=16
+
+	ibrun ./ddm.${NAME}.cctm $STDATE $STTIME $ENDDATE $TODAY $NSTEPS $TSTEP $YESTERDAY $FIRSTDAY $RUNGROUP $SENPARAM
+
+    set YESTERDAY = $TODAY
+	
+	if ( $TODAY == 2004365 ) then
+		set TODAY = 2005001
+	else
+	    @ TODAY++	
+	endif
+	
+end
+date

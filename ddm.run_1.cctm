@@ -1,0 +1,289 @@
+#!/bin/csh -f
+
+#======================= CCTMv4.7.1 Run Script =======================#
+#                                                                     #
+#              $$$$$$\  $$\      $$\  $$$$$$\   $$$$$$\               #
+#             $$  __$$\ $$$\    $$$ |$$  __$$\ $$  __$$\              #
+#             $$ /  \__|$$$$\  $$$$ |$$ /  $$ |$$ /  $$ |             #
+#             $$ |      $$\$$\$$ $$ |$$$$$$$$ |$$ |  $$ |             #
+#             $$ |      $$ \$$$  $$ |$$  __$$ |$$ |  $$ |             #
+#             $$ |  $$\ $$ |\$  /$$ |$$ |  $$ |$$ $$\$$ |             #
+#             \$$$$$$  |$$ | \_/ $$ |$$ |  $$ |\$$$$$$ /              #
+#              \______/ \__|     \__|\__|  \__| \___$$$\              #
+#                                                   \___|             #
+#                                                                     #
+#=====================================================================#
+
+ #> Set environmental variables:
+ setenv M3HOME /nas01/depts/ie/cempd/FAA-DDM/cmaq/ddm_v4
+ setenv M3DATA $M3HOME/data
+ setenv M3LIB $M3HOME/lib
+ setenv M3MODEL $M3HOME/models
+ 
+ #> Get rid of puny stack sizes
+  limit stacksize unlimited
+ 
+ #> horizontal domain decomposition
+ setenv NPCOL_NPROW "1 1"; set NPROCS   =  1
+
+ #> Number of sensitivity parameters
+  set SENPARAM = 1
+
+ #> Set run ID 
+ set APPL     = DDM_99_TEST
+ set CFG      = ddm_stampede
+ set COMPY    = _Linux2_x86_64ifort          # computer setup
+ set EXEC     = CCTM_${CFG}${COMPY}       # ctm version
+ setenv EXECUTION_ID cctm_${CFG}${COMPY}
+
+ #> Set the working directory:
+ set BASE     = $cwd
+ cd $BASE; date; cat $BASE/cfg.${CFG}${COMPY}; echo "    "; set echo
+ 
+ #> Date/Time setup #RETRIEVED FROM RUNSCRIPT ARGUMENTS
+   set STDATE   = 2005001   # beginning date (FROM TODAY in sub script)
+   set STTIME   = 000000    # beginning GMT time (HHMMSS)
+   set ENDDATE  = 2005001   # end date (last full day run)
+   set TODAY    = $STDATE   # init date counter
+   set NSTEPS   = 240000    # time duration (HHMMSS) PER DAY
+   set TSTEP    = 010000    # output time step interval (HHMMSS)
+   set YESTERDAY = 2005001  # Y | N
+   set FIRSTDAY = Y 
+   set RUNGROUP = 1         # Rungroup
+   set SENPARAM = 1         # Number of sensitivity parameters
+ 
+    #> ddm-3d calculations [T | Y | F | N ]
+     setenv CTM_DDM3D T # note: executable must be compiled with "SensOpt"
+
+    #> set log file [ default = unit 6 ]; uncomment to write standard output to a log
+    #setenv LOGFILE $BASE/$APPL.log
+
+    #> set IOAPI Options
+     setenv IOAPI_LOG_WRITE F           # turn off excess WRITE3 logging
+     setenv IOAPI_OFFSET_64 T           # enable large file sizes
+
+    #> max sync time step (sec) (default is 720)
+    #setenv CTM_MAXSYNC 300
+     
+    #> aerosol diagnostic file [ T | Y | F | N ] (default is F|N)
+    #setenv CTM_AERDIAG Y
+
+    #> sea-salt emissions diagnostic file [ T | Y | F | N ] (default is F|N)
+    #setenv CTM_SSEMDIAG Y
+
+    #> stop on inconsistent input file [ T | Y | F | N ]
+     setenv FL_ERR_STOP F
+
+    #> remove existing output files?
+     set DISP = delete
+    #set DISP = update
+    #set DISP = keep
+
+    #> output files and directories
+     set OUTDIR   = $M3DATA/cctm/$APPL
+     set OUTDIR1 = $OUTDIR  
+    if ( ! -d "$OUTDIR" ) mkdir -p $OUTDIR
+     set CONCfile  = $EXEC.$APPL.CONC.$TODAY.ncf               # CTM_CONC_1
+     set ACONCfile = $EXEC.$APPL.ACONC.$TODAY.ncf              # CTM_ACONC_1
+     set CGRIDfile = $EXEC.$APPL.CGRID.$TODAY.ncf              # CTM_CGRID_1
+     set DD1file   = $EXEC.$APPL.DRYDEP.$TODAY.ncf             # CTM_DRY_DEP_1
+     set WD1file   = $EXEC.$APPL.WETDEP1.$TODAY.ncf            # CTM_WET_DEP_1
+     set WD2file   = $EXEC.$APPL.WETDEP2.$TODAY.ncf            # CTM_WET_DEP_2
+     set SS1file   = $EXEC.$APPL.SSEMIS1.$TODAY.ncf            # CTM_SSEMIS_1
+     set AV1file   = $EXEC.$APPL.AEROVIS.$TODAY.ncf            # CTM_VIS_1
+     set AD1file   = $EXEC.$APPL.AERODIAM.$TODAY.ncf           # CTM_DIAM_1
+     set PA1file   = $EXEC.$APPL.PA_1.$TODAY.ncf               # CTM_IPR_1
+     set PA2file   = $EXEC.$APPL.PA_2.$TODAY.ncf               # CTM_IPR_2
+     set PA3file   = $EXEC.$APPL.PA_3.$TODAY.ncf               # CTM_IPR_3
+     set IRR1file  = $EXEC.$APPL.IRR_1.$TODAY.ncf              # CTM_IRR_1
+     set IRR2file  = $EXEC.$APPL.IRR_2.$TODAY.ncf              # CTM_IRR_2
+     set IRR3file  = $EXEC.$APPL.IRR_3.$TODAY.ncf              # CTM_IRR_3
+     set RJ1file   = $EXEC.$APPL.RJ_1.$TODAY.ncf               # CTM_RJ_1
+     set RJ2file   = $EXEC.$APPL.RJ_2.$TODAY.ncf               # CTM_RJ_2
+
+    #> sensitivity output files
+     if ( $?CTM_DDM3D ) then
+         if ( $CTM_DDM3D == 'Y' || $CTM_DDM3D == 'T' ) then
+             set SENSfile  = $EXEC.${APPL}.SENGRID.$TODAY.ncf      # CTM_SENS_1 (sens equivalent of S_CGRID)
+             set ASENSfile = $EXEC.${APPL}.ASENS.$TODAY.ncf        # A_SENS_1
+             set SWDfile   = $EXEC.${APPL}.SENWDEP.$TODAY.ncf      # CTM_SWETDEP_1
+             set SDDfile   = $EXEC.${APPL}.SENDDEP.$TODAY.ncf      # CTM_SDRYDEP_1
+         endif
+     endif
+
+    #> set ancillary log file name extensions
+     setenv CTM_APPL ${APPL}_${STDATE}
+
+    #> set floor file (neg concs)
+     setenv FLOOR_FILE $BASE/FLOOR_${APPL}
+
+    #> horizontal grid defn; check GRIDDESC file for GRID_NAME options
+     setenv GRIDDESC /nas01/depts/ie/cempd/FAA-DDM/cmaq/ddm_v3/scripts/GRIDDESC
+     setenv GRID_NAME FAA-2005
+
+    #> species for standard conc
+     setenv CONC_SPCS "O3"# NO ANO3I ANO3J NO2 FORM ISOP ANH4J ASO4I ASO4J"
+
+    #> layer range for standard conc
+     setenv CONC_BLEV_ELEV " 1 1"
+
+    #> species for integral average conc
+    #setenv AVG_CONC_SPCS "O3 NO CO NO2 ASO4I ASO4J NH3"
+     setenv AVG_CONC_SPCS "A25I A25J AECI AECJ AISO1J AISO2J AISO3J ANAI ANAJ ANH4I ANH4J ANO3I ANO3J AOLGAJ AOLGBJ AORGCJ AORGPAI AORGPAJ ASO4I ASO4J ASQTJ ATOL1J ATOL2J ATOL3J ATRP1J ATRP2J AXYL1J AXYL2J AXYL3J"
+
+    #> layer range for integral average conc
+     setenv ACONC_BLEV_ELEV " 1 1"
+
+    #> input files and directories
+     set OCEANpath = $M3DATA/emis/ocean
+     set OCEANfile = ocean_file_NG36_148X112.ncf
+	 
+     set EMISpath = $M3DATA/emis/base_plus_flights
+     set EMISfile = emis_mol3d.abmp.${TODAY}.36km.AEDT_base05b_flights06b.LTO3CUT3.cmaq.cb05p25tx.ncf
+ 	 
+    #> ddm-3d specific input files
+     if ( $?CTM_DDM3D ) then
+        if ( $CTM_DDM3D == 'Y' || $CTM_DDM3D == 'T' ) then
+           set NPMAX    = $SENPARAM    # number of sensitivity parameters
+           set SN_INpath = $M3DATA/sens
+           set SN_INfile = sensinput_99-${RUNGROUP}.dat
+		   #> allow higher-order sensitivity parameters [ T | Y | F | N ]
+           #> (default is N/F)
+		   setenv DDM3D_HIGH N  
+                                    
+		   #> allows for a file specifying regions [ T | Y | F | N ]	
+		   #> (default is N/F) set it below if Y/T
+           setenv DDM3D_RGN N             
+           set REGNpath  = $M3DATA/sens
+           set REGNfile  = 
+		   
+		   #> emissions split into categories [ T | Y | F | N ]
+		   #> (default is N/F) set them below if Y/T
+           setenv DDM3D_ES Y              
+           set EMISpath_S = $M3DATA/emis/flights
+           setenv AIREMIS ${EMISpath_S}/pgts3d.cb05_conus36_base06b_LTO3CUT3.${TODAY}.ncf #flights 
+	   set EMIS2file = pgts3d.cb05_conus36_base06b_LTO3CUT3.${TODAY}.ncf #flights aka area
+           set EMIS3file = pgts3d.cb05_conus36_base06b_LTO3CUT3.${TODAY}.ncf #biog
+           set EMIS4file = pgts3d.cb05_conus36_base06b_LTO3CUT3.${TODAY}.ncf #mobi
+           set EMIS5file = pgts3d.cb05_conus36_base06b_LTO3CUT3.${TODAY}.ncf #poin
+           set EMIS6file = pgts3d.cb05_conus36_base06b_LTO3CUT3.${TODAY}.ncf #nonroad	   
+		   #> begins from sensitivities from a restart file [ T | Y | F | N ]
+		   #> (default is Y/T) the setting of N/F is typically for first day
+           if ( $FIRSTDAY == 'Y' ) then
+              setenv DDM3D_RST N   
+              set SGC_ICpath = $OUTDIR1
+              set SGC_ICfile = NULL_ICFILE
+           else
+              setenv DDM3D_RST Y
+              set SGC_ICpath = $OUTDIR1
+              set SGC_ICfile = $EXEC.$APPL.SENGRID.${YESTERDAY}.ncf
+           endif
+
+		   #> use sensitivity bc file [ T | Y | F | N ]
+		   #> (default is N/F)
+           setenv DDM3D_BCS N 
+           set SGC_BCpath =
+           set SGC_BCfile =
+		   
+           source $BASE/ddm3d.q
+        endif
+     endif
+
+    #> Tracer emissions
+    #set TR_EMpath =      
+    #set TR_EMfile = 
+
+     if ( $FIRSTDAY == 'Y' ) then
+          set GC_ICpath = $M3DATA/icon
+          set GC_ICfile = ICON_ddm_FAA-2005_profile
+     else
+          set GC_ICpath = $OUTDIR1
+          set GC_ICfile = ${EXEC}.${APPL}.CGRID.${YESTERDAY}.ncf
+     endif
+
+     set GC_BCpath = $M3DATA/bcon
+     set GC_BCfile = BCON_ddm_FAA-2005_profile
+     
+     set METpath   = $M3DATA/mcip3/${TODAY}
+     set extn      = ${TODAY}
+     set GC2file   = GRIDCRO2D_${extn}
+     set GD2file   = GRIDDOT2D_${extn}
+     set MC2file   = METCRO2D_${extn}
+     set MD3file   = METDOT3D_${extn}
+     set MC3file   = METCRO3D_${extn}
+     set MB3file   = METBDY3D_${extn}
+     
+     set TR_DVpath = $METpath
+     set TR_DVfile = $MC2file
+     
+    #> 7-level photolysis data w/ file header
+     
+     set JVALpath  = $M3DATA/jproc
+     set JVALfile  = JTABLE_${TODAY}
+
+     set AE_ICpath = $GC_ICpath
+     set NR_ICpath = $GC_ICpath
+     set TR_ICpath = $GC_ICpath
+     set AE_ICfile = $GC_ICfile
+     set NR_ICfile = $GC_ICfile
+     set TR_ICfile = $GC_ICfile
+
+     set AE_BCpath = $GC_BCpath
+     set NR_BCpath = $GC_BCpath
+     set TR_BCpath = $GC_BCpath
+     set AE_BCfile = $GC_BCfile
+     set NR_BCfile = $GC_BCfile
+     set TR_BCfile = $GC_BCfile
+
+    #> input and output files and directories (boilerplate)
+     source in_out.q
+     if ( $status ) exit 1
+     
+    #> for the run control ...
+
+     setenv CTM_STDATE      $TODAY
+     setenv CTM_STTIME      $STTIME
+     setenv CTM_RUNLEN      $NSTEPS
+     setenv CTM_TSTEP       $TSTEP
+     setenv CTM_PROGNAME    $EXEC
+     if ($?CTM_DDM3D ) then
+         if ( $CTM_DDM3D == 'Y' || $CTM_DDM3D == 'T' ) then
+                      setenv CTM_NPMAX       $NPMAX                            
+                 endif
+             endif
+    #> look for existing log files
+                                  
+     set test = `ls CTM_LOG_???.${APPL}`
+     if ( "$test" != "" ) then
+        if ( $DISP == 'delete' ) then
+           echo " ancillary log files being deleted"
+           foreach file ( $test )
+              echo " deleting $file"
+              rm $file
+              end
+           else
+           echo "*** Logs exist - run ABORTED ***"
+           exit 1
+           endif
+        endif
+
+    #> - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+     env
+
+     ls -l $BASE/$EXEC; size $BASE/$EXEC
+
+    #> Executable call for serial executable, uncomment to invoke
+     time $BASE/$EXEC
+
+    #> Executable call for multiple PE, set location of MPIRUN script
+    #set MPIRUN = /opt/lsf/8.0/linux2.6-glibc2.3-x86_64/bin/mpirun
+    #mpirun.lsf -np $NPROCS $BASE/$EXEC
+
+    #> - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+	
+
+
+ end
+ date
+ exit
