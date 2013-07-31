@@ -14,6 +14,6 @@
 #> Set number of threads per task
 #setenv OMP_NUM_THREADS=2 
 
-ibrun ./ddm.run_1.cctm
+ibrun -gdb ./ddm.run_1.cctm &
 
 date

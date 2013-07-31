@@ -73,6 +73,7 @@ C   24 May 06 J.Young: par_init/pio_init col/row order check
 C    6 Sep 06 J.Young: one-write cgrid file; SGRID in module
 C   15 Nov 08 S.Napelenok: DDM-3D implementation for CMAQv4.7 
 C   17 Aug 11 S.Napelenok: DDM-3D inline emissions
+C   31 Jul 13 S.Boone: Inserted Debug stuff for TACC Stampede install
 C-----------------------------------------------------------------------
 
       USE PCGRID_DEFN           ! inherits HGRD_DEFN and CGRID_SPCS
