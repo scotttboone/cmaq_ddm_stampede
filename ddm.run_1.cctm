@@ -15,7 +15,7 @@
 #=====================================================================#
 
  #> Set environmental variables:
- setenv M3HOME /nas01/depts/ie/cempd/FAA-DDM/cmaq/ddm_v4
+ setenv M3HOME /work/02554/stboone/cmaq_4.7.1
  setenv M3DATA $M3HOME/data
  setenv M3LIB $M3HOME/lib
  setenv M3MODEL $M3HOME/models
@@ -24,7 +24,7 @@
   limit stacksize unlimited
  
  #> horizontal domain decomposition
- setenv NPCOL_NPROW "1 1"; set NPROCS   =  1
+ setenv NPCOL_NPROW "8 4"; set NPROCS   =  32
 
  #> Number of sensitivity parameters
   set SENPARAM = 1
@@ -118,7 +118,7 @@
      setenv FLOOR_FILE $BASE/FLOOR_${APPL}
 
     #> horizontal grid defn; check GRIDDESC file for GRID_NAME options
-     setenv GRIDDESC /nas01/depts/ie/cempd/FAA-DDM/cmaq/ddm_v3/scripts/GRIDDESC
+     setenv GRIDDESC ${M3HOME}/scripts/GRIDDESC
      setenv GRID_NAME FAA-2005
 
     #> species for standard conc
@@ -146,7 +146,7 @@
         if ( $CTM_DDM3D == 'Y' || $CTM_DDM3D == 'T' ) then
            set NPMAX    = $SENPARAM    # number of sensitivity parameters
            set SN_INpath = $M3DATA/sens
-           set SN_INfile = sensinput_99-${RUNGROUP}.dat
+           set SN_INfile = sensinput_1.dat
 		   #> allow higher-order sensitivity parameters [ T | Y | F | N ]
            #> (default is N/F)
 		   setenv DDM3D_HIGH N  

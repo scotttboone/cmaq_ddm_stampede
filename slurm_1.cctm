@@ -9,7 +9,7 @@
 #SBATCH -J run_1      # job name
 #SBATCH -t 24:00:00   # run limit
 #SBATCH -p normal     # job queue
-#SBATCH -o %J.out.txt # outfile
+#SBATCH -o out.txt # outfile
 
 #> Set number of threads per task
 #setenv OMP_NUM_THREADS=2 

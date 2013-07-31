@@ -353,6 +353,17 @@ C END SENSITIVITY VARIABLES
       END INTERFACE
 
 C-----------------------------------------------------------------------
+C DEBUG
+      character(len=256) :: hostname
+      integer :: i_pause = 0
+
+      CALL hostnm(hostname)
+      write(*,'(A)') "Retrieve PID at your leisure, sir."
+
+      do while (i_pause == 0)
+         CALL sleep(5)
+      enddo
+C END DEBUG
 
       JDATE = 0; JTIME = 0
 
