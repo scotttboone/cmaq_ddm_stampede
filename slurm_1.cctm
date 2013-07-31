@@ -1,0 +1,19 @@
+#!/bin/csh -f
+
+#> SLURM job submission script for CMAQ/DDM
+
+
+#> SLURM Parameters
+#SBATCH -n 2          # number of tasks
+#SBATCH -N 1          # number of nodes
+#SBATCH -J run_1      # job name
+#SBATCH -t 24:00:00   # run limit
+#SBATCH -p normal     # job queue
+#SBATCH -o %J.out.txt # outfile
+
+#> Set number of threads per task
+#setenv OMP_NUM_THREADS=2 
+
+ibrun ./ddm.run_1.cctm
+
+date

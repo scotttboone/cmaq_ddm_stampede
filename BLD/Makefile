@@ -20,7 +20,7 @@ MODEL = CCTM_ddm_stampede_Linux2_x86_64ifort
  F_FLAGS   = ${f_FLAGS}
 f90_FLAGS  =
 F90_FLAGS  = 
- C_FLAGS   = -v -g -DFLDMN  -I /opt/apps/intel13/mvapich2/1.9/include
+ C_FLAGS   = -v -g -DFLDMN -O0  -I /opt/apps/intel13/mvapich2/1.9/include
 #
 #   Linker and flags
  LINKER = ${FC}
