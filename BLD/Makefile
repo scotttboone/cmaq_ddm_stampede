@@ -1,4 +1,3 @@
-
 MODEL = CCTM_ddm_stampede_Linux2_x86_64ifort
 
 #   Compilers
@@ -16,7 +15,7 @@ MODEL = CCTM_ddm_stampede_Linux2_x86_64ifort
 
 #   Compiler flags
  add_flags = -traceback
- f_FLAGS   = -extend_source 132 -vec-report0 -nodefines -cm -w95 -c -O2 -module /work/02554/stboone/cmaq_4.7.1/scripts/cctm/MOD_DIR -I $(SE_INC) -I $(MPI_INC) -I $(IOAPI_INC) -I $(IOAPI_LIB) -I $(PARIO_LIB) -I .
+ f_FLAGS   = ${add_flags} -extend_source 132 -vec-report0 -nodefines -cm -w95 -c -O2 -module /work/02554/stboone/cmaq_4.7.1/scripts/cctm/MOD_DIR -I $(SE_INC) -I $(MPI_INC) -I $(IOAPI_INC) -I $(IOAPI_LIB) -I $(PARIO_LIB) -I .
  F_FLAGS   = ${f_FLAGS}
 f90_FLAGS  =
 F90_FLAGS  = 
