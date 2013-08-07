@@ -81,6 +81,7 @@ C    Nov 08 S.Napelenok: DDM-3D implementation for CMAQv4.7
 C    17 Dec 09 J.Young: fix CONC initializing error for sub-cycling timesteps (DO 344)
 C                       reported by Talat Odman and Yongtao Hu of GA tech.
 C     9 Feb 10 S.Napelenok: added DDM-3D to this version 
+C     7 Aug 13 S.Boone removed SWAP4D() calls per S. Napelenok
 C-----------------------------------------------------------------------
       
       USE GRID_CONF             ! horizontal & vertical domain specifications
@@ -226,13 +227,13 @@ C Local Variables:
             REAL,    INTENT( OUT ) :: K11BAR( :,:,: ), K22BAR( :,:,: )
             REAL,    INTENT( OUT ) :: DT
          END SUBROUTINE HCDIFF3D
-#ifdef sens
-         SUBROUTINE SWAP4D( DATA_IN, DATA_OUT, n1,n2,n3,n4,dim1,dim2,dim3,dir)
-            REAL,    INTENT( IN )  :: DATA_IN ( :, :, :, :)
-            REAL,    INTENT( OUT ) :: DATA_OUT( :, :, :, :)
-            INTEGER, INTENT( IN )  ::  n1,n2,n3,n4,dim1,dim2,dim3,dir
-         END SUBROUTINE SWAP4D
-#endif
+C#ifdef sens
+C         SUBROUTINE SWAP4D( DATA_IN, DATA_OUT, n1,n2,n3,n4,dim1,dim2,dim3,dir)
+C            REAL,    INTENT( IN )  :: DATA_IN ( :, :, :, :)
+C            REAL,    INTENT( OUT ) :: DATA_OUT( :, :, :, :)
+C            INTEGER, INTENT( IN )  ::  n1,n2,n3,n4,dim1,dim2,dim3,dir
+C         END SUBROUTINE SWAP4D
+C#endif
 
       END INTERFACE
  
@@ -410,13 +411,12 @@ C    send to WEST, recv from EAST, fill bound_east
          END DO
       END DO
 
-c     write (6, '(i5, a10, 10i10)') mype, ' ==d== 4d ', size(S_HALO_SOUTH), size(S_HALO_NORTH), NCOLS, NLAYS,
-c    &             NPMAX, N_SPC_DIFF
-
-      CALL SWAP4D( S_HALO_SOUTH, S_HALO_NORTH, NCOLS, NLAYS,
-     &             NPMAX, N_SPC_DIFF, NCOLS, NLAYS, NPMAX, NORTH )
-      CALL SWAP4D( S_BUF_NS,     S_HALO_SOUTH, NCOLS, NLAYS,
-     &             NPMAX, N_SPC_DIFF, NCOLS, NLAYS, NPMAX, SOUTH )
+      DO P = 1, NPMAX
+         CALL SWAP3D( S_HALO_SOUTH(:,:,P,:), S_HALO_NORTH(:,:,P,:), NCOLS,
+     &		          NLAYS, N_SPC_DIFF, NCOLS, NLAYS, NORTH )
+         CALL SWAP3D( S_BUF_NS(:,:,P,:), S_HALO_SOUTH(:,:,P,:), NCOLS,
+     &                NLAYS, N_SPC_DIFF, NCOLS, NLAYS, SOUTH )
+      END DO
 
 #endif
 
@@ -453,10 +453,12 @@ c    &             NPMAX, N_SPC_DIFF
             END DO
          END DO
  
-         CALL SWAP3D( S_HALO_WEST(:,:,:,P), S_HALO_EAST(:,:,:,P), NROWS,
-     &                NLAYS, N_SPC_DIFF, NROWS, NLAYS, EAST )
-         CALL SWAP3D( S_BUF_EW(:,P), S_HALO_WEST(:,:,:,P), NROWS,
-     &                NLAYS, N_SPC_DIFF, NROWS, NLAYS, WEST )
+      DO P = 1, NPMAX
+         CALL SWAP3D( S_HALO_WEST(:,:,P,:), S_HALO_EAST(:,:,P,:), NROWS,
+     &	              NLAYS, N_SPC_DIFF, NROWS, NLAYS, EAST )
+         CALL SWAP3D( S_BUF_EW(:,:,P,:), S_HALO_WEST(:,:,P,:), NROWS,
+     &              NLAYS, N_SPC_DIFF, NROWS, NLAYS, WEST )
+      END DO
      
  
       END DO
