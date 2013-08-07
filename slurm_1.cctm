@@ -4,7 +4,7 @@
 
 
 #> SLURM Parameters
-#SBATCH -n 2          # number of tasks
+#SBATCH -n 1          # number of tasks
 #SBATCH -N 1          # number of nodes
 #SBATCH -J run_1      # job name
 #SBATCH -t 24:00:00   # run limit
