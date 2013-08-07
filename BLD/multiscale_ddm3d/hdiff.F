@@ -445,10 +445,8 @@ c    &             NPMAX, N_SPC_DIFF
             D2C = DIFF_MAP( S )
             DO L = 1, NLAYS
                DO R = 1, NROWS
-                  S_HALO_WEST( R,L,S,P ) = SENGRID( 1,R,L,P,D2C ) /
-     &                                     RHOJ( 1,R,L )
-                  S_HALO_EAST( R,L,S,P ) = SENGRID( NCOLS,R,L,P,D2C ) /
-     &                                     RHOJ( NCOLS,R,L )
+                  S_HALO_WEST( R,L,S,P ) = SENGRID( 1,R,L,P,D2C ) / RHOJ( 1,R,L )
+                  S_HALO_EAST( R,L,S,P ) = SENGRID( NCOLS,R,L,P,D2C ) /RHOJ( NCOLS,R,L )
                   M = M + 1
                   S_BUF_EW( M,P ) = S_HALO_EAST( R,L,S,P )
                END DO
@@ -456,11 +454,10 @@ c    &             NPMAX, N_SPC_DIFF
          END DO
  
          CALL SWAP3D( S_HALO_WEST(:,:,:,P), S_HALO_EAST(:,:,:,P), NROWS,
-         CNLAYS, N_SPC_DIFF,
-     &                NROWS, NLAYS, EAST )
-         CALL SWAP3D( S_BUF_EW(:,P),        S_HALO_WEST(:,:,:,P), NROWS,
-         CNLAYS, N_SPC_DIFF,
-     &                NROWS, NLAYS, WEST )
+     &                NLAYS, N_SPC_DIFF, NROWS, NLAYS, EAST )
+         CALL SWAP3D( S_BUF_EW(:,P), S_HALO_WEST(:,:,:,P), NROWS,
+     &                NLAYS, N_SPC_DIFF, NROWS, NLAYS, WEST )
+     
  
       END DO
 #endif
