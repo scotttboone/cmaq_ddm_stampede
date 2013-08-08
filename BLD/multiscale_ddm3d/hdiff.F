@@ -226,13 +226,13 @@ C Local Variables:
             REAL,    INTENT( OUT ) :: K11BAR( :,:,: ), K22BAR( :,:,: )
             REAL,    INTENT( OUT ) :: DT
          END SUBROUTINE HCDIFF3D
-#ifdef sens
-         SUBROUTINE SWAP4D( DATA_IN, DATA_OUT, n1,n2,n3,n4,dim1,dim2,dim3,dir)
-            REAL,    INTENT( IN )  :: DATA_IN ( :, :, :, :)
-            REAL,    INTENT( OUT ) :: DATA_OUT( :, :, :, :)
-            INTEGER, INTENT( IN )  ::  n1,n2,n3,n4,dim1,dim2,dim3,dir
-         END SUBROUTINE SWAP4D
-#endif
+C#ifdef sens
+C         SUBROUTINE SWAP4D( DATA_IN, DATA_OUT, n1,n2,n3,n4,dim1,dim2,dim3,dir)
+C            REAL,    INTENT( IN )  :: DATA_IN ( :, :, :, :)
+C            REAL,    INTENT( OUT ) :: DATA_OUT( :, :, :, :)
+C            INTEGER, INTENT( IN )  ::  n1,n2,n3,n4,dim1,dim2,dim3,dir
+C         END SUBROUTINE SWAP4D
+C#endif
 
       END INTERFACE
  
